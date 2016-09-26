@@ -1,0 +1,25 @@
+{
+  "name": "webpack-hot-server-middleware",
+  "version": "0.0.1",
+  "description": "Hot updates Webpack bundles on the server",
+  "main": "src/",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/60frames/webpack-hot-server-middleware.git"
+  },
+  "author": {
+    "name": "Richard Scarrott",
+    "email": "rich@60fram.es"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "debug": "^2.2.0",
+    "require-from-string": "^1.2.0"
+  },
+  "peerDependencies": {
+    "webpack": "*"
+  }
+}
