@@ -85,7 +85,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
 
     installSourceMapSupport(outputFs);
 
-    let serverMiddleware;
+    let serverRenderer;
     let error = false;
 
     multiCompiler.plugin('done', multiStats => {
@@ -100,7 +100,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         const filename = getChunkFilename(serverStats, outputPath, options.chunkName);
         try {
             const data = outputFs.readFileSync(filename);
-            serverMiddleware = interopRequireDefault(
+            serverRenderer = interopRequireDefault(
                 requireFromString(data.toString(), filename)
             )(clientStats.toJson());
         } catch (e) {
@@ -114,7 +114,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         if (error) {
             return next(error);
         }
-        serverMiddleware(req, res, next);
+        serverRenderer(req, res, next);
     };
 }
 

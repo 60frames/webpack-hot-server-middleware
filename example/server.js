@@ -11,9 +11,7 @@ module.exports = function serverRenderer(stats) {
                 <title>App</title>
             </head>
             <body>
-                <div id="root">
-                    ${renderToString(React.createElement(App))}
-                </div>
+                <div id="root">${renderToString(React.createElement(App))}</div>
                 <script src="/client.js"></script>
             </body>
             </html>
