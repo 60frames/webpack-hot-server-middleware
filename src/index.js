@@ -32,13 +32,6 @@ function getChunkFilename(stats, outputPath, chunkName) {
 
 function installSourceMapSupport(fs) {
     sourceMapSupport.install({
-        retrieveFile(source) {
-            try {
-                return fs.readFileSync(source).toString();
-            } catch(e) {
-                // Doesn't exist
-            }
-        },
         retrieveSourceMap(source) {
             try {
                 return {
