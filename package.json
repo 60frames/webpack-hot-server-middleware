@@ -1,6 +1,6 @@
 {
   "name": "webpack-hot-server-middleware",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Hot updates Webpack bundles on the server",
   "main": "src/",
   "scripts": {
@@ -17,7 +17,8 @@
   "license": "MIT",
   "dependencies": {
     "debug": "^2.2.0",
-    "require-from-string": "^1.2.0"
+    "require-from-string": "^1.2.0",
+    "source-map-support": "^0.4.2"
   },
   "peerDependencies": {
     "webpack": "*"

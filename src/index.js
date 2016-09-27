@@ -4,6 +4,7 @@ const debug = require('debug')('webpack-hot-server-middleware');
 const path = require('path');
 const requireFromString = require('require-from-string');
 const MultiCompiler = require('webpack/lib/MultiCompiler');
+const sourceMapSupport = require('source-map-support');
 
 const DEFAULTS = {
     chunkName: 'main'
@@ -27,6 +28,28 @@ function getChunkFilename(stats, outputPath, chunkName) {
         Array.isArray(filename) ?
             filename.find(asset => /\.js$/.test(asset)) : filename
     );
+}
+
+function installSourceMapSupport(fs) {
+    sourceMapSupport.install({
+        retrieveFile(source) {
+            try {
+                return fs.readFileSync(source).toString();
+            } catch(e) {
+                // Doesn't exist
+            }
+        },
+        retrieveSourceMap(source) {
+            try {
+                return {
+                    url: source,
+                    map: fs.readFileSync(`${source}.map`).toString()
+                };
+            } catch(e) {
+                // Doesn't exist
+            }
+        }
+    });
 }
 
 /**
@@ -59,6 +82,8 @@ function webpackHotServerMiddleware(multiCompiler, options) {
     const outputFs = serverCompiler.outputFileSystem;
     const outputPath = serverCompiler.outputPath;
 
+    installSourceMapSupport(outputFs);
+
     let universalRenderer;
     let error = false;
 
@@ -72,7 +97,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         }
         error = false;
         const filename = getChunkFilename(serverStats, outputPath, options.chunkName);
-        try {            
+        try {
             const data = outputFs.readFileSync(filename);
             universalRenderer = requireFromString(data.toString(), filename).default(clientStats.toJson());
         } catch (e) {
