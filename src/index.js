@@ -10,6 +10,10 @@ const DEFAULTS = {
     chunkName: 'main'
 };
 
+function interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj.default : obj;
+}
+
 function findCompiler(multiCompiler, name) {
     return multiCompiler.compilers.find(compiler => compiler.name === name);
 }
@@ -81,7 +85,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
 
     installSourceMapSupport(outputFs);
 
-    let universalRenderer;
+    let serverMiddleware;
     let error = false;
 
     multiCompiler.plugin('done', multiStats => {
@@ -96,7 +100,9 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         const filename = getChunkFilename(serverStats, outputPath, options.chunkName);
         try {
             const data = outputFs.readFileSync(filename);
-            universalRenderer = requireFromString(data.toString(), filename).default(clientStats.toJson());
+            serverMiddleware = interopRequireDefault(
+                requireFromString(data.toString(), filename)
+            )(clientStats.toJson());
         } catch (e) {
             debug(e);
             error = e;
@@ -108,7 +114,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         if (error) {
             return next(error);
         }
-        universalRenderer(req, res, next);
+        serverMiddleware(req, res, next);
     };
 }
 

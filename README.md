@@ -16,7 +16,7 @@ The entry point to the client bundle renders to the DOM, e.g.
 import ReactDOM from 'react-dom';
 import App from './components/App';
 
-ReactDOM.render(<App />, document.getElementById('#root'));
+ReactDOM.render(<App />, document.getElementById('root'));
 ```
 
 And the entry point to the server bundle renders to string, e.g.
@@ -27,7 +27,7 @@ And the entry point to the server bundle renders to string, e.g.
 import { renderToString } from 'react-dom/server';
 import App from './components/App';
 
-export default function universalRenderer() {
+export default function serverRenderer() {
     return (req, res, next) => {
         res.status(200).send(`
             <!doctype html>
@@ -39,7 +39,7 @@ export default function universalRenderer() {
                 <div id="root">
                     ${renderToString(<App />)}
                 </div>
-                <script src="/bundle.js"></script>
+                <script src="/client.js"></script>
             </body>
             </html>
         `);
@@ -51,10 +51,10 @@ export default function universalRenderer() {
 
 ```js
 const express = require('express');
-const universalRenderer = require('./dist/server');
+const serverRenderer = require('./dist/server');
 const app = express();
 
-app.use(universalRenderer());
+app.use(serverRenderer());
 app.listen(6060);
 ```
 
@@ -79,8 +79,7 @@ module.exports = [
         target: 'web',
         entry: './client.js'
         ...
-    },
-    {
+    }, {
         name: 'server',
         target: 'node',
         entry: './server.js'
@@ -105,6 +104,16 @@ const compiler = webpack(config);
 
 app.use(webpackDevMiddleware(compiler));
 app.use(webpackHotServerMiddleware(compiler));
+
+app.listen(6060);
 ```
 
 Now whenever Webpack rebuilds the new bundle will be used both client and *server* side.
+
+### Example
+
+An example setup can be found in the [example](example) directory.
+
+## License
+
+MIT

@@ -1,0 +1,20 @@
+{
+  "name": "webpack-hot-server-middleware-example",
+  "version": "0.0.1",
+  "description": "Example usage of webpack-hot-server-middleware",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.14.0",
+    "react": "^15.3.2",
+    "react-dom": "^15.3.2",
+    "webpack": "^1.13.2",
+    "webpack-dev-middleware": "^1.8.3",
+    "webpack-hot-server-middleware": "file:../"
+  }
+}
