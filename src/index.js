@@ -17,6 +17,18 @@ function findStats(multiStats, name) {
     return multiStats.stats.find(stats => stats.compilation.name === name);
 }
 
+function getChunkFilename(stats, outputPath, chunkName) {
+    const assetsByChunkName = stats.toJson().assetsByChunkName;
+    let filename = assetsByChunkName[chunkName] || '';
+    // If source maps are generated `assetsByChunkName.main`
+    // will be an array of filenames.
+    return path.join(
+        outputPath,
+        Array.isArray(filename) ?
+            filename.find(asset => /\.js$/.test(asset)) : filename
+    );
+}
+
 /**
  * Passes the request to the most up to date 'server' bundle.
  * NOTE: This must be mounted after webpackDevMiddleware to ensure this
@@ -59,16 +71,12 @@ function webpackHotServerMiddleware(multiCompiler, options) {
             return;
         }
         error = false;
-        try {
-            const data = outputFs.readFileSync(
-                path.join(
-                    outputPath,
-                    serverStats.toJson().assetsByChunkName[options.chunkName]
-                )
-            );
-            universalRenderer = requireFromString(data.toString()).default(clientStats.toJson());
+        const filename = getChunkFilename(serverStats, outputPath, options.chunkName);
+        try {            
+            const data = outputFs.readFileSync(filename);
+            universalRenderer = requireFromString(data.toString(), filename).default(clientStats.toJson());
         } catch (e) {
-            debug(`Error: ${e}`);
+            debug(e);
             error = e;
         }
     });
