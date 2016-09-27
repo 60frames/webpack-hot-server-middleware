@@ -32,6 +32,10 @@ function getChunkFilename(stats, outputPath, chunkName) {
 
 function installSourceMapSupport(fs) {
     sourceMapSupport.install({
+        // NOTE: If https://github.com/evanw/node-source-map-support/pull/149
+        // lands we can be less aggressive and explicitly invalidate the source
+        // map cache when Webpack recompiles.
+        emptyCacheBetweenOperations: true,
         retrieveSourceMap(source) {
             try {
                 return {
