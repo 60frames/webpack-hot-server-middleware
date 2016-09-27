@@ -10,7 +10,7 @@ When creating universal Web apps it's common to build two bundles with Webpack, 
 
 The entry point to the client bundle renders to the DOM, e.g.
 
-```
+```js
 // client.js
 
 import ReactDOM from 'react-dom';
@@ -21,7 +21,7 @@ ReactDOM.render(<App />, document.getElementById('#root'));
 
 And the entry point to the server bundle renders to string, e.g.
 
-```
+```js
 // server.js
 
 import { renderToString } from 'react-dom/server';
@@ -49,7 +49,7 @@ export default function universalRenderer() {
 
 > NOTE: The server bundle is itself middleware allowing you to mount it anywhere in an existing node server, e.g.
 
-```
+```js
 const express = require('express');
 const universalRenderer = require('./dist/server');
 const app = express();
@@ -70,7 +70,7 @@ It turns out hot reloading a Webpack bundle on the server is much easier than on
 
 Webpack Hot Server Middleware expects your Webpack config to export an [array of configurations](http://webpack.github.io/docs/configuration.html#multiple-configurations), one for your client bundle and one for your server bundle, e.g.
 
-```
+```js
 // webpack.config.js
 
 module.exports = [
@@ -93,7 +93,7 @@ module.exports = [
 
 It then needs to be mounted immediately after `webpack-dev-middleware`, e.g.
 
-```
+```js
 const express = require('express');
 const webpack = require('webpack');
 const webpackDevMiddleware = require('webpack-dev-middleware');
