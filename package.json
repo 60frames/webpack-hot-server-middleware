@@ -1,10 +1,13 @@
 {
   "name": "webpack-hot-server-middleware",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Hot updates Webpack bundles on the server",
   "main": "src/",
   "scripts": {
     "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "node"
   },
   "repository": {
     "type": "git",
@@ -17,10 +20,17 @@
   "license": "MIT",
   "dependencies": {
     "debug": "^2.2.0",
-    "require-from-string": "^1.2.0",
+    "require-from-string": "^1.2.1",
     "source-map-support": "^0.4.2"
   },
   "peerDependencies": {
     "webpack": "*"
+  },
+  "devDependencies": {
+    "express": "^4.14.0",
+    "jest": "^15.1.1",
+    "supertest": "^2.0.0",
+    "webpack": "^1.13.2",
+    "webpack-dev-middleware": "^1.8.3"
   }
 }
