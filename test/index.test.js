@@ -19,7 +19,6 @@ const badExportConfig = require('./fixtures/badexport/webpack.config.js');
 function createServer(config, mountWebpackDevMiddleware) {
     mountWebpackDevMiddleware = mountWebpackDevMiddleware === undefined
         ? true : !!mountWebpackDevMiddleware;
-    console.log(mountWebpackDevMiddleware);
     const compiler = webpack(config);
     const app = express();
     let webpackDev;
