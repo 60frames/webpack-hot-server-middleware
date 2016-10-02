@@ -16,7 +16,10 @@ const incorrectServerCompilerNameConfig = require('./fixtures/incorrectservercom
 const incorrectClientCompilerNameConfig = require('./fixtures/incorrectclientcompilername/webpack.config.js');
 const badExportConfig = require('./fixtures/badexport/webpack.config.js');
 
-function createServer(config, mountWebpackDevMiddleware = true) {
+function createServer(config, mountWebpackDevMiddleware) {
+    mountWebpackDevMiddleware = mountWebpackDevMiddleware === undefined
+        ? true : !!mountWebpackDevMiddleware;
+    console.log(mountWebpackDevMiddleware);
     const compiler = webpack(config);
     const app = express();
     let webpackDev;
@@ -31,9 +34,9 @@ function createServer(config, mountWebpackDevMiddleware = true) {
         res.status(500).send(err.toString());
     });
     return [app, (cb) => {
-        // HACK: Process won't terminate unless close is successful however
-        // chokidar has a bug whereby calling close before the watcher is ready
-        // fails so having to wait for...a bit.
+        // HACK: Process won't terminate unless `close` is successful however
+        // 'chokidar' has a bug whereby calling `close` before the watcher is
+        // ready fails so having to wait for...a bit.
         // https://github.com/webpack/webpack/issues/1920
         // https://github.com/paulmillr/chokidar/pull/536
         setTimeout(() => {
