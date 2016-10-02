@@ -1,4 +1,4 @@
-# Webpack Hot Server Middleware
+# Webpack Hot Server Middleware [![Build Status](https://travis-ci.org/60frames/webpack-hot-server-middleware.svg?branch=master)](https://travis-ci.org/60frames/webpack-hot-server-middleware) [![npm version](https://badge.fury.io/js/webpack-hot-server-middleware.svg)](https://badge.fury.io/js/wwebpack-hot-server-middleware)
 
 ## What?
 
@@ -112,7 +112,7 @@ Now whenever Webpack rebuilds the new bundle will be used both client and *serve
 
 ### Example
 
-An example setup can be found in the [example](example) directory.
+A simple example can be found in the [example](example) directory and a more real world example can be seen in the [60fram.es boilerplate](https://github.com/60frames/react-boilerplate)
 
 ## License
 
