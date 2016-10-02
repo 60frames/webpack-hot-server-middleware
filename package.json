@@ -7,7 +7,8 @@
     "test": "jest"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "setupTestFrameworkScriptFile": "<rootDir>/test/support/setup.js"
   },
   "repository": {
     "type": "git",
