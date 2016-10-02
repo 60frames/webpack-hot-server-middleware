@@ -6,7 +6,9 @@ const request = require('supertest');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const webpackHotServerMiddleware = require('../src');
 
-const defaultConfig = require('./fixtures/default/webpack.config.js');
+const commonJsConfig = require('./fixtures/commonjs/webpack.config.js');
+const esModulesConfig = require('./fixtures/esmodules/webpack.config.js');
+const sourceMapConfig = require('./fixtures/sourcemap/webpack.config.js');
 const compiletimeErrorConfig = require('./fixtures/compiletimeerror/webpack.config.js');
 const runtimeErrorConfig = require('./fixtures/runtimeerror/webpack.config.js');
 const noMultiCompilerConfig = require('./fixtures/nomulticompiler/webpack.config.js');
@@ -47,8 +49,36 @@ describe('index', () => {
         );
     });
 
-    it('works', done => {
-        const app = createServer(defaultConfig);
+    it('handles commonJs exports', done => {
+        const app = createServer(commonJsConfig);
+        request(app)
+            .get('/')
+            .expect(200)
+            .expect('Hello Server')
+            .end((err, res) => {
+                if (err) {
+                    done.fail(err);
+                }
+                done();
+            });
+    });
+
+    it('handles es modules exports', done => {
+        const app = createServer(esModulesConfig);
+        request(app)
+            .get('/')
+            .expect(200)
+            .expect('Hello Server')
+            .end((err, res) => {
+                if (err) {
+                    done.fail(err);
+                }
+                done();
+            });
+    });
+
+    it('handles source maps', done => {
+        const app = createServer(sourceMapConfig);
         request(app)
             .get('/')
             .expect(200)
