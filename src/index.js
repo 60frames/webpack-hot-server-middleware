@@ -22,8 +22,8 @@ function findStats(multiStats, name) {
     return multiStats.stats.find(stats => stats.compilation.name === name);
 }
 
-function getChunkFilename(stats, outputPath, chunkName) {
-    const assetsByChunkName = stats.toJson().assetsByChunkName;
+function getFilename(serverStats, outputPath, chunkName) {
+    const assetsByChunkName = serverStats.toJson().assetsByChunkName;
     let filename = assetsByChunkName[chunkName] || '';
     // If source maps are generated `assetsByChunkName.main`
     // will be an array of filenames.
@@ -32,6 +32,24 @@ function getChunkFilename(stats, outputPath, chunkName) {
         Array.isArray(filename) ?
             filename.find(asset => /\.js$/.test(asset)) : filename
     );
+}
+
+function getServerRenderer(filename, buffer, clientStats) {
+    const errMessage = `The 'server' compiler must export a function in the form of \`(stats) => (req, res, next) => void 0\``;
+
+    let serverRenderer = interopRequireDefault(
+        requireFromString(buffer.toString(), filename)
+    );
+    if (typeof serverRenderer !== 'function') {
+        throw new Error(errMessage);
+    }
+
+    serverRenderer = serverRenderer(clientStats.toJson());
+    if (typeof serverRenderer !== 'function') {
+        throw new Error(errMessage);
+    }
+
+    return serverRenderer;
 }
 
 function installSourceMapSupport(fs) {
@@ -46,7 +64,7 @@ function installSourceMapSupport(fs) {
                     url: source,
                     map: fs.readFileSync(`${source}.map`).toString()
                 };
-            } catch(e) {
+            } catch(ex) {
                 // Doesn't exist
             }
         }
@@ -66,18 +84,18 @@ function webpackHotServerMiddleware(multiCompiler, options) {
 
     options = Object.assign({}, DEFAULTS, options);
 
-    if (!multiCompiler instanceof MultiCompiler) {
-        throw new Error('Expected webpack compiler to contain both a `client` and `server` config');
+    if (!(multiCompiler instanceof MultiCompiler)) {
+        throw new Error(`Expected webpack compiler to contain both a 'client' and 'server' config`);
     }
 
     const serverCompiler = findCompiler(multiCompiler, 'server');
     const clientCompiler = findCompiler(multiCompiler, 'client');
 
     if (!serverCompiler) {
-        throw new Error('Expected a webpack compiler named `server`');
+        throw new Error(`Expected a webpack compiler named 'server'`);
     }
     if (!clientCompiler) {
-        throw new Error('Expected a webpack compiler named `client`');
+        throw new Error(`Expected a webpack compiler named 'client'`);
     }
 
     const outputFs = serverCompiler.outputFileSystem;
@@ -89,6 +107,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
     let error = false;
 
     multiCompiler.plugin('done', multiStats => {
+        error = false;
         const clientStats = findStats(multiStats, 'client');
         const serverStats = findStats(multiStats, 'server');
         // Server compilation errors need to be propagated to the client.
@@ -96,16 +115,13 @@ function webpackHotServerMiddleware(multiCompiler, options) {
             error = serverStats.compilation.errors[0];
             return;
         }
-        error = false;
-        const filename = getChunkFilename(serverStats, outputPath, options.chunkName);
+        const filename = getFilename(serverStats, outputPath, options.chunkName);
+        const buffer = outputFs.readFileSync(filename);
         try {
-            const data = outputFs.readFileSync(filename);
-            serverRenderer = interopRequireDefault(
-                requireFromString(data.toString(), filename)
-            )(clientStats.toJson());
-        } catch (e) {
-            debug(e);
-            error = e;
+            serverRenderer = getServerRenderer(filename, buffer, clientStats);
+        } catch (ex) {
+            debug(ex);
+            error = ex;
         }
     });
 
