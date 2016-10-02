@@ -1,5 +1,8 @@
 'use strict';
 
+// NOTE: .test.js files are run through babel but to save on a build step src
+// files are not meaning it's important to only use Node v4+ features in src.
+
 const express = require('express');
 const webpack = require('webpack');
 const request = require('supertest');
@@ -16,9 +19,7 @@ const incorrectServerCompilerNameConfig = require('./fixtures/incorrectservercom
 const incorrectClientCompilerNameConfig = require('./fixtures/incorrectclientcompilername/webpack.config.js');
 const badExportConfig = require('./fixtures/badexport/webpack.config.js');
 
-function createServer(config, mountWebpackDevMiddleware) {
-    mountWebpackDevMiddleware = mountWebpackDevMiddleware === undefined
-        ? true : !!mountWebpackDevMiddleware;
+function createServer(config, mountWebpackDevMiddleware = true) {
     const compiler = webpack(config);
     const app = express();
     let webpackDev;
