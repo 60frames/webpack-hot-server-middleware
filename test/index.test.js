@@ -1,8 +1,5 @@
 'use strict';
 
-// NOTE: .test.js files are run through babel but to save on a build step src
-// files are not meaning it's important to only use Node v4+ features in src.
-
 const express = require('express');
 const webpack = require('webpack');
 const request = require('supertest');

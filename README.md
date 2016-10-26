@@ -1,4 +1,4 @@
-# Webpack Hot Server Middleware [![Build Status](https://travis-ci.org/60frames/webpack-hot-server-middleware.svg?branch=master)](https://travis-ci.org/60frames/webpack-hot-server-middleware) [![npm version](https://badge.fury.io/js/webpack-hot-server-middleware.svg)](https://badge.fury.io/js/webpack-hot-server-middleware)
+# Webpack Hot Server Middleware [![Build Status](https://travis-ci.org/60frames/webpack-hot-server-middleware.svg?branch=master)](https://travis-ci.org/60frames/webpack-hot-server-middleware) [![npm version](https://badge.fury.io/js/webpack-hot-server-middleware.svg)](https://badge.fury.io/js/webpack-hot-server-middleware) [![Coverage Status](https://coveralls.io/repos/github/60frames/webpack-hot-server-middleware/badge.svg?branch=master)](https://coveralls.io/github/60frames/webpack-hot-server-middleware?branch=master)
 
 ## What?
 
@@ -64,7 +64,7 @@ Webpack Hot Server Middleware will ensure that the server bundle used is always 
 
 ## How?
 
-It turns out hot reloading a Webpack bundle on the server is much easier than on the client as you don't have any state to preserve because `renderToString` is neccesarily stateless so the entire bundle can be replaced at the top level whenever a change occurs.
+It turns out hot reloading a Webpack bundle on the server is much easier than on the client as you don't have any state to preserve because middleware is almost always necessarily stateless so the entire bundle can be replaced at the top level whenever a change occurs.
 
 ### Usage
 
@@ -108,7 +108,7 @@ app.use(webpackHotServerMiddleware(compiler));
 app.listen(6060);
 ```
 
-Now whenever Webpack rebuilds the new bundle will be used both client and *server* side.
+Now whenever Webpack rebuilds, the new bundle will be used both client and *server* side.
 
 ### Example
 
