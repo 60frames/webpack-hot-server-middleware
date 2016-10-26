@@ -1,4 +1,4 @@
-# Webpack Hot Server Middleware [![Build Status](https://travis-ci.org/60frames/webpack-hot-server-middleware.svg?branch=master)](https://travis-ci.org/60frames/webpack-hot-server-middleware) [![npm version](https://badge.fury.io/js/webpack-hot-server-middleware.svg)](https://badge.fury.io/js/webpack-hot-server-middleware) [![Coverage Status](https://coveralls.io/repos/github/webpack-hot-server-middleware/react-boilerplate/badge.svg?branch=master)](https://coveralls.io/github/webpack-hot-server-middleware/react-boilerplate?branch=master)
+# Webpack Hot Server Middleware [![Build Status](https://travis-ci.org/60frames/webpack-hot-server-middleware.svg?branch=master)](https://travis-ci.org/60frames/webpack-hot-server-middleware) [![npm version](https://badge.fury.io/js/webpack-hot-server-middleware.svg)](https://badge.fury.io/js/webpack-hot-server-middleware) [![Coverage Status](https://coveralls.io/repos/github/60frames/webpack-hot-server-middleware/badge.svg?branch=master)](https://coveralls.io/github/60frames/webpack-hot-server-middleware?branch=master)
 
 ## What?
 
