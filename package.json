@@ -1,6 +1,6 @@
 {
   "name": "webpack-hot-server-middleware",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Hot updates Webpack bundles on the server",
   "main": "src/",
   "scripts": {
@@ -8,8 +8,7 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "setupTestFrameworkScriptFile": "<rootDir>/test/support/setup.js",
-    "preprocessorIgnorePatterns": ["/node_modules/", "<rootDir>/src"]
+    "setupTestFrameworkScriptFile": "<rootDir>/test/support/setup.js"
   },
   "repository": {
     "type": "git",
@@ -31,7 +30,9 @@
   "devDependencies": {
     "babel-jest": "^15.0.0",
     "babel-loader": "^6.2.5",
+    "babel-plugin-istanbul": "^2.0.3",
     "babel-preset-es2015": "^6.16.0",
+    "coveralls": "^2.11.14",
     "express": "^4.14.0",
     "jest": "^15.1.1",
     "supertest": "^2.0.0",
