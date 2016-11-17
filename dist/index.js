@@ -22,11 +22,9 @@ var _sourceMapSupport2 = _interopRequireDefault(_sourceMapSupport);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var logger = (0, _debug2.default)('webpack-hot-server-middleware');
-
+// TODO: Work out why `declare`ing this in a separate lib fails cover middleware functions.
 // https://github.com/flowtype/flow-typed/issues/377
-// TODO: Work out why `declare`ing this in a separate lib fails to check.
-
+var logger = (0, _debug2.default)('webpack-hot-server-middleware');
 
 var DEFAULTS = {
     chunkName: 'main'
@@ -90,7 +88,6 @@ function installSourceMapSupport(fs) {
         // NOTE: If https://github.com/evanw/node-source-map-support/pull/149
         // lands we can be less aggressive and explicitly invalidate the source
         // map cache when Webpack recompiles.
-        handleUncaughtExceptions: true,
         emptyCacheBetweenOperations: true,
         retrieveSourceMap: function retrieveSourceMap(source) {
             try {
