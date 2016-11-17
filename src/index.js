@@ -156,6 +156,8 @@ function webpackHotServerMiddleware(multiCompiler: MultiCompiler, options: { chu
             next(error);
             return;
         }
+        /* istanbul ignore if  */
+        // It's difficult to get here in unit tests (it's only really here for flow)
         if (!serverRenderer) {
             next(new Error('webpack-hot-server-middleware reached before Webpack finished compiling.'));
             return;
