@@ -8,7 +8,7 @@
     "build": "babel src --out-dir dist",
     "test": "jest",
     "typecheck": "flow",
-    "publish": "npm run build && npm publish"
+    "prepublish": "npm run build"
   },
   "jest": {
     "testEnvironment": "node",
