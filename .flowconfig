@@ -1,0 +1,12 @@
+[ignore]
+
+[include]
+
+[libs]
+./decls/misc.js
+./decls/requireFromString.js
+./decls/sourceMapSupport.js
+./decls/webpack.js
+./flow-typed/npm/express_v4.x.x.js
+
+[options]

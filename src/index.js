@@ -1,40 +1,65 @@
-'use strict';
+/* @flow */
 
-const debug = require('debug')('webpack-hot-server-middleware');
-const path = require('path');
-const requireFromString = require('require-from-string');
-const MultiCompiler = require('webpack/lib/MultiCompiler');
-const sourceMapSupport = require('source-map-support');
+import type {
+    MultiStats,
+    Stats,
+    Compiler
+} from 'webpack/lib/MultiCompiler';
+import type {
+    $Request,
+    $Response,
+    NextFunction
+} from 'express';
+// TODO: Work out why `declare`ing this in a separate lib fails cover middleware functions.
+// https://github.com/flowtype/flow-typed/issues/377
+type Middleware = (req: $Request, res: $Response, next: NextFunction) => mixed;
+
+import debug from 'debug';
+import path from 'path';
+import requireFromString from 'require-from-string';
+import MultiCompiler from 'webpack/lib/MultiCompiler';
+import sourceMapSupport from 'source-map-support';
+
+const logger = debug('webpack-hot-server-middleware');
 
 const DEFAULTS = {
     chunkName: 'main'
 };
 
-function interopRequireDefault(obj) {
+function interopRequireDefault(obj: any): any {
     return obj && obj.__esModule ? obj.default : obj;
 }
 
-function findCompiler(multiCompiler, name) {
+function findCompiler(multiCompiler: MultiCompiler, name: string): ?Compiler {
     return multiCompiler.compilers.find(compiler => compiler.name === name);
 }
 
-function findStats(multiStats, name) {
-    return multiStats.stats.find(stats => stats.compilation.name === name);
+function findStats(multiStats: MultiStats, name: string): Stats {
+    const stats = multiStats.stats.find(stats => stats.compilation.name === name);
+    if (!stats) {
+        throw new Error(`Unable to find stats for '${name}' compilation.`);
+    }
+    return stats;
 }
 
-function getFilename(serverStats, outputPath, chunkName) {
+function getFilename(serverStats, outputPath: string, chunkName: string) {
     const assetsByChunkName = serverStats.toJson().assetsByChunkName;
-    let filename = assetsByChunkName[chunkName] || '';
-    // If source maps are generated `assetsByChunkName.main`
-    // will be an array of filenames.
+    let filename: ?(string | Array<string>) = assetsByChunkName[chunkName];
+    // If source maps are generated `assetsByChunkName.main` will be an array
+    // of filenames.
+    if (Array.isArray(filename)) {
+        filename = filename.find(asset => /\.js$/.test(asset));
+    }
+    if (!filename) {
+        throw new Error(`Unable to find '${chunkName}' chunk.`);
+    }
     return path.join(
         outputPath,
-        Array.isArray(filename) ?
-            filename.find(asset => /\.js$/.test(asset)) : filename
+        filename
     );
 }
 
-function getServerRenderer(filename, buffer, clientStats) {
+function getServerRenderer(filename: string, buffer: Buffer, clientStats: Stats): Middleware {
     const errMessage = `The 'server' compiler must export a function in the form of \`(stats) => (req, res, next) => void 0\``;
 
     let serverRenderer = interopRequireDefault(
@@ -62,7 +87,7 @@ function installSourceMapSupport(fs) {
             try {
                 return {
                     url: source,
-                    map: fs.readFileSync(`${source}.map`).toString()
+                    map: fs.readFileSync(`${source}.map`, 'utf-8')
                 };
             } catch(ex) {
                 // Doesn't exist
@@ -79,8 +104,8 @@ function installSourceMapSupport(fs) {
  * @options {String}        options.chunkName  The name of the main server chunk.
  * @return  {Function}                         Middleware fn.
  */
-function webpackHotServerMiddleware(multiCompiler, options) {
-    debug('Using webpack-hot-server-middleware');
+function webpackHotServerMiddleware(multiCompiler: MultiCompiler, options: { chunkName: string }): Middleware {
+    logger('Using webpack-hot-server-middleware');
 
     options = Object.assign({}, DEFAULTS, options);
 
@@ -103,8 +128,8 @@ function webpackHotServerMiddleware(multiCompiler, options) {
 
     installSourceMapSupport(outputFs);
 
-    let serverRenderer;
-    let error = false;
+    let serverRenderer: ?Middleware;
+    let error: Error | false = false;
 
     multiCompiler.plugin('done', multiStats => {
         error = false;
@@ -120,18 +145,23 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         try {
             serverRenderer = getServerRenderer(filename, buffer, clientStats);
         } catch (ex) {
-            debug(ex);
+            logger(ex);
             error = ex;
         }
     });
 
     return (req, res, next) => {
-        debug(`Receive request ${req.url}`);
+        logger(`Receive request ${req.url}`);
         if (error) {
-            return next(error);
+            next(error);
+            return;
+        }
+        if (!serverRenderer) {
+            next(new Error('webpack-hot-server-middleware reached before Webpack finished compiling.'));
+            return;
         }
         serverRenderer(req, res, next);
-    };
+    }
 }
 
 module.exports = webpackHotServerMiddleware;
