@@ -58,7 +58,7 @@ app.listen(6060);
 
 Given this setup it's fairly easy to hook up hot module replacement for your client bundle using `webpack-dev-server` or `webpack-hot-middleware` however these middlewares don't handle server bundles meaning you need to frequently restart your server to see the latest changes.
 
-Webpack Hot Server Middleware solves this problem, ensuring the server bundle used is always the latest compilation without requiring a restart.
+Webpack Hot Server Middleware solves this problem, ensuring the server bundle used is always the latest compilation without requiring a restart. Additionally it allows your client and server bundle to share the same Webpack cache for faster builds and uses an in-memory bundle on the server to avoid hitting the disk.
 
 ## How?
 
