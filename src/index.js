@@ -58,12 +58,9 @@ function installSourceMapSupport(fs) {
         // lands we can be less aggressive and explicitly invalidate the source
         // map cache when Webpack recompiles.
         emptyCacheBetweenOperations: true,
-        retrieveSourceMap(source) {
+        retrieveFile(source) {
             try {
-                return {
-                    url: source,
-                    map: fs.readFileSync(`${source}.map`).toString()
-                };
+                return fs.readFileSync(source, 'utf8');
             } catch(ex) {
                 // Doesn't exist
             }
