@@ -34,7 +34,7 @@ function getFilename(serverStats, outputPath, chunkName) {
     );
 }
 
-function getServerRenderer(filename, buffer, clientStats) {
+function getServerRenderer(filename, buffer, clientStats, serverStats) {
     const errMessage = `The 'server' compiler must export a function in the form of \`(stats) => (req, res, next) => void 0\``;
 
     let serverRenderer = interopRequireDefault(
@@ -44,7 +44,7 @@ function getServerRenderer(filename, buffer, clientStats) {
         throw new Error(errMessage);
     }
 
-    serverRenderer = serverRenderer(clientStats.toJson());
+    serverRenderer = serverRenderer(clientStats.toJson(), serverStats.toJson());
     if (typeof serverRenderer !== 'function') {
         throw new Error(errMessage);
     }
@@ -115,7 +115,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         const filename = getFilename(serverStats, outputPath, options.chunkName);
         const buffer = outputFs.readFileSync(filename);
         try {
-            serverRenderer = getServerRenderer(filename, buffer, clientStats);
+            serverRenderer = getServerRenderer(filename, buffer, clientStats, serverStats);
         } catch (ex) {
             debug(ex);
             error = ex;
