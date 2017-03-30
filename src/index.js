@@ -115,6 +115,10 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         const filename = getFilename(serverStats, outputPath, options.chunkName);
         const buffer = outputFs.readFileSync(filename);
         try {
+            options.config = {
+                client: serverCompiler.options,
+                server: clientCompiler.options
+            }
             serverRenderer = getServerRenderer(filename, buffer, clientStats, serverStats, options);
         } catch (ex) {
             debug(ex);
