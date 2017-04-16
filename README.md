@@ -155,12 +155,12 @@ if (process.env.NODE_ENV !== 'production') {
     app.use(webpackHotMiddleware(compiler.compilers.find(compiler => compiler.name === 'client')));
     app.use(webpackHotServerMiddleware(compiler));
 } else {
-    const DIST_DIR = path.join(__dirname, '../dist');
-    const SERVER_RENDERER_PATH = path.join(DIST_DIR, 'server.js');
-    const CLIENT_STATS_PATH = path.join(DIST_DIR, 'stats.json');
+    const CLIENT_ASSETS_DIR = path.join(__dirname, '../build/client');
+    const CLIENT_STATS_PATH = path.join(CLIENT_ASSETS_DIR, 'stats.json');
+    const SERVER_RENDERER_PATH = path.join(__dirname, '../build/server.js');
     const serverRenderer = require(SERVER_RENDERER_PATH);
     const stats = require(CLIENT_STATS_PATH);
-    app.use(express.static(DIST_DIR));
+    app.use(express.static(CLIENT_ASSETS_DIR));
     app.use(serverRenderer(stats));
 }
 
