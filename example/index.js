@@ -10,7 +10,11 @@ const compiler = webpack(config);
 app.use(webpackDevMiddleware(compiler, {
 	noInfo: true
 }));
-app.use(webpackHotServerMiddleware(compiler));
+app.use(webpackHotServerMiddleware(compiler, {
+	serverRendererOptions: {
+		foo: 'Bar'
+	}
+}));
 
 app.listen(6060, () => {
 	console.log('Server started: http://localhost:6060/');
