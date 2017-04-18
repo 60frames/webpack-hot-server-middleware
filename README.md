@@ -118,7 +118,7 @@ Now whenever Webpack rebuilds, the new bundle will be used both client and *serv
 The name of the server entry point, defaults to 'main'.
 
 **serverRendererOptions** `object`
-Options passed will be mixed in with the `clientStats` and `serverStats` passed to the `serverRenderer`.
+Mixed in with `clientStats` & `serverStats` and passed to the `serverRenderer`.
 
 ### Example
 
