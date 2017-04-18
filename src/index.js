@@ -37,7 +37,7 @@ function getFilename(serverStats, outputPath, chunkName) {
 }
 
 function getServerRenderer(filename, buffer, options) {
-    const errMessage = `The 'server' compiler must export a function in the form of \`(options) => (req, res, next) => void 0\``;
+    const errMessage = `The 'server' compiler must export a function in the form of \`(options) => (req, res, next) => void\``;
 
     let serverRenderer = interopRequireDefault(
         requireFromString(buffer.toString(), filename)
