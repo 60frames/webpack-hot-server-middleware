@@ -7,7 +7,8 @@ const MultiCompiler = require('webpack/lib/MultiCompiler');
 const sourceMapSupport = require('source-map-support');
 
 const DEFAULTS = {
-    chunkName: 'main'
+    chunkName: 'main',
+    serverRendererOptions: {}
 };
 
 function interopRequireDefault(obj) {
@@ -29,13 +30,14 @@ function getFilename(serverStats, outputPath, chunkName) {
     // will be an array of filenames.
     return path.join(
         outputPath,
-        Array.isArray(filename) ?
-            filename.find(asset => /\.js$/.test(asset)) : filename
+        Array.isArray(filename)
+            ? filename.find(asset => /\.js$/.test(asset))
+            : filename
     );
 }
 
-function getServerRenderer(filename, buffer, clientStats, serverStats, options) {
-    const errMessage = `The 'server' compiler must export a function in the form of \`(stats) => (req, res, next) => void 0\``;
+function getServerRenderer(filename, buffer, options) {
+    const errMessage = `The 'server' compiler must export a function in the form of \`(options) => (req, res, next) => void 0\``;
 
     let serverRenderer = interopRequireDefault(
         requireFromString(buffer.toString(), filename)
@@ -44,7 +46,7 @@ function getServerRenderer(filename, buffer, clientStats, serverStats, options) 
         throw new Error(errMessage);
     }
 
-    serverRenderer = serverRenderer(clientStats.toJson(), serverStats.toJson(), options);
+    serverRenderer = serverRenderer(options);
     if (typeof serverRenderer !== 'function') {
         throw new Error(errMessage);
     }
@@ -61,7 +63,7 @@ function installSourceMapSupport(fs) {
         retrieveFile(source) {
             try {
                 return fs.readFileSync(source, 'utf8');
-            } catch(ex) {
+            } catch (ex) {
                 // Doesn't exist
             }
         }
@@ -72,9 +74,10 @@ function installSourceMapSupport(fs) {
  * Passes the request to the most up to date 'server' bundle.
  * NOTE: This must be mounted after webpackDevMiddleware to ensure this
  * middleware doesn't get called until the compilation is complete.
- * @param   {MultiCompiler} multiCompiler      e.g webpack([clientConfig, serverConfig])
- * @options {String}        options.chunkName  The name of the main server chunk.
- * @return  {Function}                         Middleware fn.
+ * @param   {MultiCompiler} multiCompiler                  e.g webpack([clientConfig, serverConfig])
+ * @options {String}        options.chunkName              The name of the main server chunk.
+ * @options {Object}        options.serverRendererOptions  Options passed to the `serverRenderer`.
+ * @return  {Function}                                     Middleware fn.
  */
 function webpackHotServerMiddleware(multiCompiler, options) {
     debug('Using webpack-hot-server-middleware');
@@ -114,12 +117,12 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         }
         const filename = getFilename(serverStats, outputPath, options.chunkName);
         const buffer = outputFs.readFileSync(filename);
+        const serverRendererOptions = Object.assign({
+            clientStats: clientStats.toJson(),
+            serverStats: serverStats.toJson()
+        }, options.serverRendererOptions);
         try {
-            options.config = {
-                client: clientCompiler.options,
-                server: serverCompiler.options
-            }
-            serverRenderer = getServerRenderer(filename, buffer, clientStats, serverStats, options);
+            serverRenderer = getServerRenderer(filename, buffer, serverRendererOptions);
         } catch (ex) {
             debug(ex);
             error = ex;

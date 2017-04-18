@@ -108,6 +108,18 @@ app.listen(6060);
 
 Now whenever Webpack rebuilds, the new bundle will be used both client and *server* side.
 
+### API
+
+**webpackDevMiddleware** `(compiler: MultiCompiler, options?: Options) => void`
+
+#### Options
+
+**chunkName** `string`
+The name of the server entry point, defaults to 'main'.
+
+**serverRendererOptions** `object`
+Options passed will be mixed in with the `clientStats` and `serverStats` passed to the `serverRenderer`.
+
 ### Example
 
 A simple example can be found in the [example](example) directory and a more real world example can be seen in the [60fram.es boilerplate](https://github.com/60frames/react-boilerplate).

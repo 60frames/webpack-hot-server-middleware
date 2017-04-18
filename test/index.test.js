@@ -160,7 +160,7 @@ describe('index', () => {
         request(app)
             .get('/')
             .expect(500)
-            .expect(`Error: The 'server' compiler must export a function in the form of \`(stats) => (req, res, next) => void 0\``)
+            .expect(`Error: The 'server' compiler must export a function in the form of \`(options) => (req, res, next) => void 0\``)
             .end((err, res) => {
                 close(() => {
                     if (err) {
