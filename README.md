@@ -110,7 +110,7 @@ Now whenever Webpack rebuilds, the new bundle will be used both client and *serv
 
 ### API
 
-**webpackDevMiddleware** `(compiler: MultiCompiler, options?: Options) => void`
+**webpackHotServerMiddleware** `(compiler: MultiCompiler, options?: Options) => void`
 
 #### Options
 
