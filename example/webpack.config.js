@@ -8,9 +8,18 @@ module.exports = [
         name: 'client',
         target: 'web',
         entry: [
+            'react-hot-loader/patch',
             'webpack-hot-middleware/client',
             './client',
         ],
+        module: {
+            rules: [
+                {
+                    test: /\.jsx?$/,
+                    loaders: ['react-hot-loader/webpack']
+                }
+            ]
+        },
         output: {
             path: dist,
             filename: 'client.js',
