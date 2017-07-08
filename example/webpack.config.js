@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 const dist = path.join(__dirname, 'dist');
 
@@ -6,12 +7,21 @@ module.exports = [
     {
         name: 'client',
         target: 'web',
-        entry: './client',
+        entry: [
+            'webpack-hot-middleware/client',
+            './client',
+        ],
         output: {
             path: dist,
-            filename: 'client.js'
+            filename: 'client.js',
+            publicPath: '/assets/'
         },
-        devtool: 'source-map'
+        devtool: 'source-map',
+        plugins: [
+            new webpack.HotModuleReplacementPlugin(),
+            new webpack.NamedModulesPlugin(),
+            new webpack.NoErrorsPlugin(),
+        ]
     }, {
         name: 'server',
         target: 'node',
@@ -21,6 +31,6 @@ module.exports = [
             filename: 'server.js',
             libraryTarget: 'commonjs2'
         },
-        devtool: 'source-map'
+        devtool: 'source-map',
     }
 ];
