@@ -105,8 +105,17 @@ function webpackHotServerMiddleware(multiCompiler, options) {
 
     let serverRenderer;
     let error = false;
+    let isCompiling = true;
+    const compilingResponse = `
+        <head>
+            <title>Compiling...</title>
+            <meta http-equiv="refresh" content="1">
+        </head>
+        <code>Webpack is compiling. Please wait...</code>
+    `;
 
     multiCompiler.plugin('done', multiStats => {
+        isCompiling = false;
         error = false;
         const clientStats = findStats(multiStats, 'client');
         const serverStats = findStats(multiStats, 'server');
@@ -133,6 +142,9 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         debug(`Receive request ${req.url}`);
         if (error) {
             return next(error);
+        }
+        if (isCompiling) {
+            return res.send(compilingResponse);
         }
         serverRenderer(req, res, next);
     };
