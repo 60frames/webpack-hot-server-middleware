@@ -100,7 +100,9 @@ const app = express();
 
 const compiler = webpack(config);
 
-app.use(webpackDevMiddleware(compiler));
+app.use(webpackDevMiddleware(compiler, {
+  serverSideRender: true
+}));
 app.use(webpackHotServerMiddleware(compiler));
 
 app.listen(6060);
@@ -139,7 +141,9 @@ const app = express();
 
 const compiler = webpack(config);
 
-app.use(webpackDevMiddleware(compiler));
+app.use(webpackDevMiddleware(compiler, {
+  serverSideRender: true
+}));
 // NOTE: Only the client bundle needs to be passed to `webpack-hot-middleware`.
 app.use(webpackHotMiddleware(compiler.compilers.find(compiler => compiler.name === 'client')));
 app.use(webpackHotServerMiddleware(compiler));
@@ -163,7 +167,9 @@ if (process.env.NODE_ENV !== 'production') {
     const webpackHotServerMiddleware = require('webpack-hot-server-middleware');
     const config = require('./webpack.config.js');
     const compiler = webpack(config);
-    app.use(webpackDevMiddleware(compiler));
+    app.use(webpackDevMiddleware(compiler, {
+      serverSideRender: true
+    }));
     app.use(webpackHotMiddleware(compiler.compilers.find(compiler => compiler.name === 'client')));
     app.use(webpackHotServerMiddleware(compiler));
 } else {
