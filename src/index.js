@@ -5,10 +5,12 @@ const path = require('path');
 const requireFromString = require('require-from-string');
 const MultiCompiler = require('webpack/lib/MultiCompiler');
 const sourceMapSupport = require('source-map-support');
+const { createConnectHandler } = require('./handlers');
 
 const DEFAULTS = {
     chunkName: 'main',
-    serverRendererOptions: {}
+    serverRendererOptions: {},
+    createHandler: createConnectHandler,
 };
 
 function interopRequireDefault(obj) {
@@ -129,12 +131,8 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         }
     });
 
-    return (req, res, next) => {
-        debug(`Receive request ${req.url}`);
-        if (error) {
-            return next(error);
-        }
-        serverRenderer(req, res, next);
+    return function () {
+        return options.createHandler(error, serverRenderer).apply(null, arguments);
     };
 }
 
