@@ -4,17 +4,20 @@
   "description": "Example usage of webpack-hot-server-middleware",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "npm run start:express",
+    "start:express": "node express/index.js",
+    "start:koa": "node koa/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.14.0",
-    "react": "^15.3.2",
-    "react-dom": "^15.3.2",
-    "webpack": "^1.13.2",
-    "webpack-dev-middleware": "^1.8.3",
+    "express": "^4.16.2",
+    "koa": "^2.3.0",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "webpack": "^3.7.1",
+    "webpack-dev-middleware": "^1.12.0",
     "webpack-hot-server-middleware": "file:../"
   }
 }

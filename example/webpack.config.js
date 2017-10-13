@@ -15,7 +15,7 @@ module.exports = [
     }, {
         name: 'server',
         target: 'node',
-        entry: './server',
+        entry: './express/server',
         output: {
             path: dist,
             filename: 'server.js',
