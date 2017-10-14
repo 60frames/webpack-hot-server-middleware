@@ -6,9 +6,26 @@ const requireFromString = require('require-from-string');
 const MultiCompiler = require('webpack/lib/MultiCompiler');
 const sourceMapSupport = require('source-map-support');
 
+const createConnectHandler = (error, serverRenderer) => (req, res, next) => {
+    debug(`Receive request ${req.url}`);
+    if (error) {
+        return next(error);
+    }
+    serverRenderer(req, res, next);
+};
+
+const createKoaHandler = (error, serverRenderer) => (ctx, next) => {
+    debug(`Receive request ${ctx.url}`);
+    if (error) {
+        ctx.throw(error);
+    }
+    return serverRenderer(ctx, next);
+};
+
 const DEFAULTS = {
     chunkName: 'main',
-    serverRendererOptions: {}
+    serverRendererOptions: {},
+    createHandler: createConnectHandler,
 };
 
 function interopRequireDefault(obj) {
@@ -129,13 +146,11 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         }
     });
 
-    return (req, res, next) => {
-        debug(`Receive request ${req.url}`);
-        if (error) {
-            return next(error);
-        }
-        serverRenderer(req, res, next);
+    return function () {
+        return options.createHandler(error, serverRenderer).apply(null, arguments);
     };
 }
+
+Object.assign(webpackHotServerMiddleware, { createConnectHandler, createKoaHandler });
 
 module.exports = webpackHotServerMiddleware;
