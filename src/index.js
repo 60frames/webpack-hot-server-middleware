@@ -3,7 +3,6 @@
 const debug = require('debug')('webpack-hot-server-middleware');
 const path = require('path');
 const requireFromString = require('require-from-string');
-const MultiCompiler = require('webpack/lib/MultiCompiler');
 const sourceMapSupport = require('source-map-support');
 
 const createConnectHandler = (error, serverRenderer) => (req, res, next) => {
@@ -30,6 +29,12 @@ const DEFAULTS = {
 
 function interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj.default : obj;
+}
+
+function isMultiCompiler(compiler) {
+    // Duck typing as `instanceof MultiCompiler` fails when npm decides to
+    // install multiple instances of webpack.
+    return compiler && compiler.compilers;
 }
 
 function findCompiler(multiCompiler, name) {
@@ -101,7 +106,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
 
     options = Object.assign({}, DEFAULTS, options);
 
-    if (!(multiCompiler instanceof MultiCompiler)) {
+    if (!isMultiCompiler(multiCompiler)) {
         throw new Error(`Expected webpack compiler to contain both a 'client' and 'server' config`);
     }
 
