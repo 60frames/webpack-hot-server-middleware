@@ -35,7 +35,7 @@ function koaDevware(dev, compiler) {
 
 app.use(koaDevware(webpackDevMiddleware(compiler, {
   noInfo: true
-})));
+}), compiler));
 app.use(webpackHotServerMiddleware(compiler, {
   createHandler: webpackHotServerMiddleware.createKoaHandler,
   serverRendererOptions: {
