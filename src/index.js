@@ -38,11 +38,11 @@ function isMultiCompiler(compiler) {
 }
 
 function findCompiler(multiCompiler, name) {
-    return multiCompiler.compilers.find(compiler => compiler.name === name);
+    return multiCompiler.compilers.filter(compiler => compiler.name.indexOf(name) === 0);
 }
 
 function findStats(multiStats, name) {
-    return multiStats.stats.find(stats => stats.compilation.name === name);
+    return multiStats.stats.filter(stats => stats.compilation.name.indexOf(name) === 0);
 }
 
 function getFilename(serverStats, outputPath, chunkName) {
@@ -110,13 +110,13 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         throw new Error(`Expected webpack compiler to contain both a 'client' and 'server' config`);
     }
 
-    const serverCompiler = findCompiler(multiCompiler, 'server');
-    const clientCompiler = findCompiler(multiCompiler, 'client');
+    const serverCompiler = findCompiler(multiCompiler, 'server')[0];
+    const clientCompilers = findCompiler(multiCompiler, 'client');
 
     if (!serverCompiler) {
         throw new Error(`Expected a webpack compiler named 'server'`);
     }
-    if (!clientCompiler) {
+    if (!clientCompilers.length) {
         throw new Error(`Expected a webpack compiler named 'client'`);
     }
 
@@ -131,16 +131,23 @@ function webpackHotServerMiddleware(multiCompiler, options) {
     multiCompiler.plugin('done', multiStats => {
         error = false;
         const clientStats = findStats(multiStats, 'client');
-        const serverStats = findStats(multiStats, 'server');
+        const serverStats = findStats(multiStats, 'server')[0];
         // Server compilation errors need to be propagated to the client.
         if (serverStats.compilation.errors.length) {
             error = serverStats.compilation.errors[0];
             return;
         }
+
+        let clientStatsJson = clientStats.map(obj => obj.toJson());
+
+        if (clientStatsJson.length === 1) {
+            clientStatsJson = clientStatsJson[0];
+        }
+
         const filename = getFilename(serverStats, outputPath, options.chunkName);
         const buffer = outputFs.readFileSync(filename);
         const serverRendererOptions = Object.assign({
-            clientStats: clientStats.toJson(),
+            clientStats: clientStatsJson,
             serverStats: serverStats.toJson()
         }, options.serverRendererOptions);
         try {
