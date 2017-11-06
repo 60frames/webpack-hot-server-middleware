@@ -117,7 +117,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         throw new Error(`Expected a webpack compiler named 'server'`);
     }
     if (!clientCompilers.length) {
-        throw new Error(`Expected a webpack compiler named 'client'`);
+        throw new Error(`Expected at least one webpack compiler prefixed with 'client'`);
     }
 
     const outputFs = serverCompiler.outputFileSystem;
