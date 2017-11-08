@@ -87,7 +87,7 @@ module.exports = [
 ];
 ```
 
-> NOTE: It's important both the 'client' and 'server' configs are given the name 'client' and 'server' respectively.
+> NOTE: It's important both the 'client' and 'server' configs are given a name prefixed with 'client' and 'server' respectively.
 
 It then needs to be mounted immediately after `webpack-dev-middleware`, e.g.
 
