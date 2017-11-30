@@ -3,6 +3,7 @@
   "version": "0.3.0",
   "description": "Hot updates Webpack bundles on the server",
   "main": "src/",
+  "typings": "index.d.ts",
   "scripts": {
     "test": "jest"
   },
