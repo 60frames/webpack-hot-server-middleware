@@ -13,7 +13,7 @@ const compiletimeErrorConfig = require('./fixtures/compiletimeerror/webpack.conf
 const runtimeErrorConfig = require('./fixtures/runtimeerror/webpack.config.js');
 const noMultiCompilerConfig = require('./fixtures/nomulticompiler/webpack.config.js');
 const incorrectServerCompilerNameConfig = require('./fixtures/incorrectservercompilername/webpack.config.js');
-const incorrectClientCompilerNameConfig = require('./fixtures/incorrectclientcompilername/webpack.config.js');
+const singleServerCompilerConfig = require('./fixtures/singleservercompiler/webpack.config.js');
 const badExportConfig = require('./fixtures/badexport/webpack.config.js');
 const multipleClientsConfig = require('./fixtures/multipleclients/webpack.config.js');
 
@@ -65,12 +65,6 @@ describe('index', () => {
         );
     });
 
-    it('does not throw when client compiler cannot be found', () => {
-        expect(createServer.bind(null, incorrectClientCompilerNameConfig, false)).not.toThrow(
-            new Error(`Expected at least one webpack compiler prefixed with 'client'`)
-        );
-    });
-
     it('handles commonJs exports', done => {
         const [app, close] = createServer(commonJsConfig);
         request(app)
@@ -115,6 +109,23 @@ describe('index', () => {
                     throw new Error('Expected client stats length to be 2');
                 }
             })
+            .end((err, res) => {
+                close(() => {
+                    if (err) {
+                        done.fail(err);
+                        return;
+                    }
+                    done();
+                });
+            });
+    });
+
+    it('handles single server compiler', done => {
+        const [app, close] = createServer(singleServerCompilerConfig);
+        request(app)
+            .get('/')
+            .expect(200)
+            .expect('Hello Server')
             .end((err, res) => {
                 close(() => {
                     if (err) {
