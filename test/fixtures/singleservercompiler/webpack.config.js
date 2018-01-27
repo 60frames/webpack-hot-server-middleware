@@ -4,15 +4,6 @@ const dist = path.join(__dirname, 'dist');
 
 module.exports = [
     {
-        name: '¯\_(ツ)_/¯',
-        target: 'web',
-        context: __dirname,
-        entry: './client',
-        output: {
-            path: dist,
-            filename: 'client.js'
-        }
-    }, {
         name: 'server',
         target: 'node',
         context: __dirname,

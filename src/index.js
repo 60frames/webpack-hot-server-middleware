@@ -107,7 +107,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
     options = Object.assign({}, DEFAULTS, options);
 
     if (!isMultiCompiler(multiCompiler)) {
-        throw new Error(`Expected webpack compiler to contain both a 'client' and 'server' config`);
+        throw new Error(`Expected webpack compiler to contain both a 'client' and/or 'server' config`);
     }
 
     const serverCompiler = findCompiler(multiCompiler, 'server')[0];
@@ -117,7 +117,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         throw new Error(`Expected a webpack compiler named 'server'`);
     }
     if (!clientCompilers.length) {
-        throw new Error(`Expected at least one webpack compiler prefixed with 'client'`);
+        debug(`Cannot find webpack compiler named 'client'. Starting without client compiler`);
     }
 
     const outputFs = serverCompiler.outputFileSystem;
@@ -130,7 +130,8 @@ function webpackHotServerMiddleware(multiCompiler, options) {
 
     multiCompiler.plugin('done', multiStats => {
         error = false;
-        const clientStats = findStats(multiStats, 'client');
+
+        
         const serverStats = findStats(multiStats, 'server')[0];
         // Server compilation errors need to be propagated to the client.
         if (serverStats.compilation.errors.length) {
@@ -138,10 +139,15 @@ function webpackHotServerMiddleware(multiCompiler, options) {
             return;
         }
 
-        let clientStatsJson = clientStats.map(obj => obj.toJson());
+        let clientStatsJson = null;
 
-        if (clientStatsJson.length === 1) {
-            clientStatsJson = clientStatsJson[0];
+        if (clientCompilers.length) {
+            const clientStats = findStats(multiStats, 'client');
+            clientStatsJson = clientStats.map(obj => obj.toJson());
+            
+            if (clientStatsJson.length === 1) {
+                clientStatsJson = clientStatsJson[0];
+            }
         }
 
         const filename = getFilename(serverStats, outputPath, options.chunkName);

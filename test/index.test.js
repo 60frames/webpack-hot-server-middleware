@@ -13,7 +13,7 @@ const compiletimeErrorConfig = require('./fixtures/compiletimeerror/webpack.conf
 const runtimeErrorConfig = require('./fixtures/runtimeerror/webpack.config.js');
 const noMultiCompilerConfig = require('./fixtures/nomulticompiler/webpack.config.js');
 const incorrectServerCompilerNameConfig = require('./fixtures/incorrectservercompilername/webpack.config.js');
-const incorrectClientCompilerNameConfig = require('./fixtures/incorrectclientcompilername/webpack.config.js');
+const singleServerCompilerConfig = require('./fixtures/singleservercompiler/webpack.config.js');
 const badExportConfig = require('./fixtures/badexport/webpack.config.js');
 const multipleClientsConfig = require('./fixtures/multipleclients/webpack.config.js');
 
@@ -55,19 +55,13 @@ describe('index', () => {
         // Avoid mounting webpackDevMiddleware as we expect it to throw so would
         // lose the opportunity to close the connection.
         expect(createServer.bind(null, noMultiCompilerConfig, false)).toThrow(
-            new Error(`Expected webpack compiler to contain both a 'client' and 'server' config`)
+            new Error(`Expected webpack compiler to contain both a 'client' and/or 'server' config`)
         );
     });
 
     it('throws when server compiler cannot be found', () => {
         expect(createServer.bind(null, incorrectServerCompilerNameConfig, false)).toThrow(
             new Error(`Expected a webpack compiler named 'server'`)
-        );
-    });
-
-    it('throws when client compiler cannot be found', () => {
-        expect(createServer.bind(null, incorrectClientCompilerNameConfig, false)).toThrow(
-            new Error(`Expected at least one webpack compiler prefixed with 'client'`)
         );
     });
 
@@ -115,6 +109,23 @@ describe('index', () => {
                     throw new Error('Expected client stats length to be 2');
                 }
             })
+            .end((err, res) => {
+                close(() => {
+                    if (err) {
+                        done.fail(err);
+                        return;
+                    }
+                    done();
+                });
+            });
+    });
+
+    it('handles single server compiler', done => {
+        const [app, close] = createServer(singleServerCompilerConfig);
+        request(app)
+            .get('/')
+            .expect(200)
+            .expect('Hello Server')
             .end((err, res) => {
                 close(() => {
                     if (err) {
