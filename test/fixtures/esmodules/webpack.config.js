@@ -28,9 +28,11 @@ module.exports = [
             rules: [{
                 test: /\.js$/,
                 exclude: /node_modules/,
-                use: 'babel-loader',
-                query: {
-                    presets: ['es2015']
+                use: {
+                    loader: 'babel-loader',
+                    query: {
+                        presets: ['babel-preset-es2015']
+                    }
                 }
             }]
         }
