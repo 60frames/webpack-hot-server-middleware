@@ -128,7 +128,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
     let serverRenderer;
     let error = false;
 
-    multiCompiler.hooks.done.tap("WebpackHotServerMiddleware", multiStats => {
+    multiCompiler.hooks.done.tap('WebpackHotServerMiddleware', multiStats => {
         error = false;
 
         
