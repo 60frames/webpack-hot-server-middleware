@@ -6,6 +6,7 @@ module.exports = [
     {
         name: 'client',
         target: 'web',
+        mode: 'development',
         context: __dirname,
         entry: './client',
         output: {
@@ -16,6 +17,7 @@ module.exports = [
     }, {
         name: 'server',
         target: 'node',
+        mode: 'development',
         context: __dirname,
         entry: './server',
         output: {

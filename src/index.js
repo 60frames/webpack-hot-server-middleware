@@ -157,6 +157,9 @@ function webpackHotServerMiddleware(multiCompiler, options) {
             serverStats: serverStats.toJson()
         }, options.serverRendererOptions);
         try {
+            // console.log('##### filename', filename);
+            // console.log('##### buffer', buffer);
+            // console.log('##### serverRendererOptions', serverRendererOptions);
             serverRenderer = getServerRenderer(filename, buffer, serverRendererOptions);
         } catch (ex) {
             debug(ex);

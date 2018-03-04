@@ -6,6 +6,7 @@ module.exports = [
     {
         name: 'server',
         target: 'node',
+        mode: 'development',
         context: __dirname,
         entry: './server',
         output: {

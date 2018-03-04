@@ -6,6 +6,7 @@ module.exports = [
     {
         name: 'client',
         target: 'web',
+        mode: 'development',
         context: __dirname,
         entry: './client',
         output: {
@@ -15,6 +16,7 @@ module.exports = [
     }, {
         name: 'server',
         target: 'node',
+        mode: 'development',
         context: __dirname,
         entry: './server',
         output: {
@@ -23,10 +25,10 @@ module.exports = [
             libraryTarget: 'commonjs2'
         },
         module: {
-            loaders: [{
+            rules: [{
                 test: /\.js$/,
-                exclude: 'node_modules',
-                loader: 'babel-loader',
+                exclude: /node_modules/,
+                use: 'babel-loader',
                 query: {
                     presets: ['es2015']
                 }

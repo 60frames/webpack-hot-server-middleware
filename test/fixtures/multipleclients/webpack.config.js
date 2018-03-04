@@ -6,6 +6,7 @@ module.exports = [
     {
         name: 'client-mobile',
         target: 'web',
+        mode: 'development',
         context: __dirname,
         entry: './mobile',
         output: {
@@ -15,6 +16,7 @@ module.exports = [
     }, {
         name: 'client-desktop',
         target: 'web',
+        mode: 'development',
         context: __dirname,
         entry: './desktop',
         output: {
@@ -24,6 +26,7 @@ module.exports = [
     }, {
         name: 'server',
         target: 'node',
+        mode: 'development',
         context: __dirname,
         entry: './server',
         output: {
