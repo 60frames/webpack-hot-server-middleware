@@ -23,7 +23,7 @@ function createServer(config, mountWebpackDevMiddleware = true) {
     let webpackDev;
     if (mountWebpackDevMiddleware) {
         webpackDev = webpackDevMiddleware(compiler, {
-            quiet: true
+            loglevel: 'silent'
         });
         app.use(webpackDev);
     }
