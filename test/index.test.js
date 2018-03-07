@@ -2,6 +2,7 @@
 
 const express = require('express');
 const webpack = require('webpack');
+const webpackLegacy = require('webpack-legacy');
 const request = require('supertest');
 const webpackDevMiddleware = require('webpack-dev-middleware');
 const webpackHotServerMiddleware = require('../src');
@@ -16,15 +17,14 @@ const incorrectServerCompilerNameConfig = require('./fixtures/incorrectservercom
 const singleServerCompilerConfig = require('./fixtures/singleservercompiler/webpack.config.js');
 const badExportConfig = require('./fixtures/badexport/webpack.config.js');
 const multipleClientsConfig = require('./fixtures/multipleclients/webpack.config.js');
+const legacyConfig = require('./fixtures/legacy/webpack.config.js');
 
 function createServer(config, mountWebpackDevMiddleware = true) {
     const compiler = webpack(config);
     const app = express();
     let webpackDev;
     if (mountWebpackDevMiddleware) {
-        webpackDev = webpackDevMiddleware(compiler, {
-            loglevel: 'silent'
-        });
+        webpackDev = webpackDevMiddleware(compiler, { loglevel: 'silent' });
         app.use(webpackDev);
     }
     app.use(webpackHotServerMiddleware(compiler));
@@ -48,6 +48,52 @@ function createServer(config, mountWebpackDevMiddleware = true) {
         }, 100);
     }];
 }
+
+function createLegacyServer(config, mountWebpackDevMiddleware = true) {
+    const compiler = webpackLegacy(config);
+    const app = express();
+    let webpackDev;
+    if (mountWebpackDevMiddleware) {
+        webpackDev = webpackDevMiddleware(compiler, { quiet: true });
+        app.use(webpackDev);
+    }
+    app.use(webpackHotServerMiddleware(compiler));
+    app.use((err, req, res, next) => {
+        res.status(500).send(err.toString());
+    });
+    return [app, (cb) => {
+        // HACK: Process won't terminate unless `close` is successful however
+        // 'chokidar' has a bug whereby calling `close` before the watcher is
+        // ready fails so having to wait for...a bit.
+        // https://github.com/webpack/webpack/issues/1920
+        // https://github.com/paulmillr/chokidar/pull/536
+        setTimeout(() => {
+            if (webpackDev) {
+                webpackDev.close(cb);
+                return;
+            }
+            if (cb) {
+                cb();
+            }
+        }, 100);
+    }];
+}
+
+const createWebpackLegacyServer = (config, mountWebpackDevMiddleware = true) => 
+    createServerForCompiler(
+        webpackLegacy,
+        config,
+        { quiet: true },
+        mountWebpackDevMiddleware
+    );
+
+const createServer1 = (config, mountWebpackDevMiddleware = true) =>
+    createServerForCompiler(
+        webpack,
+        config,
+        { loglevel: 'silent' },
+        mountWebpackDevMiddleware
+    );
 
 describe('index', () => {
 
@@ -194,6 +240,23 @@ describe('index', () => {
             .get('/')
             .expect(500)
             .expect(`Error: The 'server' compiler must export a function in the form of \`(options) => (req, res, next) => void\``)
+            .end((err, res) => {
+                close(() => {
+                    if (err) {
+                        done.fail(err);
+                        return;
+                    }
+                    done();
+                });
+            });
+    });
+
+    it(`handles webpack3`, done => {
+        const [app, close] = createLegacyServer(legacyConfig);
+        request(app)
+            .get('/')
+            .expect(200)
+            .expect('Hello Server')
             .end((err, res) => {
                 close(() => {
                     if (err) {
