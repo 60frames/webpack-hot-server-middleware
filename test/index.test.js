@@ -80,24 +80,7 @@ function createLegacyServer(config, mountWebpackDevMiddleware = true) {
     }];
 }
 
-const createWebpackLegacyServer = (config, mountWebpackDevMiddleware = true) =>
-    createServerForCompiler(
-        webpackLegacy,
-        config,
-        { quiet: true },
-        mountWebpackDevMiddleware
-    );
-
-const createServer1 = (config, mountWebpackDevMiddleware = true) =>
-    createServerForCompiler(
-        webpack,
-        config,
-        { loglevel: 'silent' },
-        mountWebpackDevMiddleware
-    );
-
 describe('index', () => {
-
     it('throws when the compiler isn\'t a `MultiCompiler`', () => {
         // Avoid mounting webpackDevMiddleware as we expect it to throw so would
         // lose the opportunity to close the connection.
@@ -268,5 +251,4 @@ describe('index', () => {
                 });
             });
     });
-
 });
