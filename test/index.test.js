@@ -5,6 +5,7 @@ const webpack = require('webpack');
 const webpackLegacy = require('webpack-legacy');
 const request = require('supertest');
 const webpackDevMiddleware = require('webpack-dev-middleware');
+const webpackDevMiddlewareLegacy = require('webpack-dev-middleware-legacy');
 const webpackHotServerMiddleware = require('../src');
 
 const commonJsConfig = require('./fixtures/commonjs/webpack.config.js');
@@ -24,7 +25,7 @@ function createServer(config, mountWebpackDevMiddleware = true) {
     const app = express();
     let webpackDev;
     if (mountWebpackDevMiddleware) {
-        webpackDev = webpackDevMiddleware(compiler, { loglevel: 'silent' });
+        webpackDev = webpackDevMiddleware(compiler, { logLevel: 'silent' });
         app.use(webpackDev);
     }
     app.use(webpackHotServerMiddleware(compiler));
@@ -54,7 +55,7 @@ function createLegacyServer(config, mountWebpackDevMiddleware = true) {
     const app = express();
     let webpackDev;
     if (mountWebpackDevMiddleware) {
-        webpackDev = webpackDevMiddleware(compiler, { quiet: true });
+        webpackDev = webpackDevMiddlewareLegacy(compiler, { logLevel: 'silent' });
         app.use(webpackDev);
     }
     app.use(webpackHotServerMiddleware(compiler));
@@ -79,7 +80,7 @@ function createLegacyServer(config, mountWebpackDevMiddleware = true) {
     }];
 }
 
-const createWebpackLegacyServer = (config, mountWebpackDevMiddleware = true) => 
+const createWebpackLegacyServer = (config, mountWebpackDevMiddleware = true) =>
     createServerForCompiler(
         webpackLegacy,
         config,
@@ -251,7 +252,7 @@ describe('index', () => {
             });
     });
 
-    it(`handles webpack3`, done => {
+    it(`handles legacy webpack`, done => {
         const [app, close] = createLegacyServer(legacyConfig);
         request(app)
             .get('/')

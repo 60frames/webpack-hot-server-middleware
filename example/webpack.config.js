@@ -5,6 +5,7 @@ const dist = path.join(__dirname, 'dist');
 module.exports = [
     {
         name: 'client',
+        mode: 'development',
         target: 'web',
         entry: './client',
         output: {
@@ -14,6 +15,7 @@ module.exports = [
         devtool: 'source-map'
     }, {
         name: 'server',
+        mode: 'development',
         target: 'node',
         entry: './express/server',
         output: {
