@@ -2,8 +2,10 @@
 
 const express = require('express');
 const webpack = require('webpack');
+const webpackLegacy = require('webpack-legacy');
 const request = require('supertest');
 const webpackDevMiddleware = require('webpack-dev-middleware');
+const webpackDevMiddlewareLegacy = require('webpack-dev-middleware-legacy');
 const webpackHotServerMiddleware = require('../src');
 
 const commonJsConfig = require('./fixtures/commonjs/webpack.config.js');
@@ -16,15 +18,44 @@ const incorrectServerCompilerNameConfig = require('./fixtures/incorrectservercom
 const singleServerCompilerConfig = require('./fixtures/singleservercompiler/webpack.config.js');
 const badExportConfig = require('./fixtures/badexport/webpack.config.js');
 const multipleClientsConfig = require('./fixtures/multipleclients/webpack.config.js');
+const legacyConfig = require('./fixtures/legacy/webpack.config.js');
 
 function createServer(config, mountWebpackDevMiddleware = true) {
     const compiler = webpack(config);
     const app = express();
     let webpackDev;
     if (mountWebpackDevMiddleware) {
-        webpackDev = webpackDevMiddleware(compiler, {
-            quiet: true
-        });
+        webpackDev = webpackDevMiddleware(compiler, { logLevel: 'silent' });
+        app.use(webpackDev);
+    }
+    app.use(webpackHotServerMiddleware(compiler));
+    app.use((err, req, res, next) => {
+        res.status(500).send(err.toString());
+    });
+    return [app, (cb) => {
+        // HACK: Process won't terminate unless `close` is successful however
+        // 'chokidar' has a bug whereby calling `close` before the watcher is
+        // ready fails so having to wait for...a bit.
+        // https://github.com/webpack/webpack/issues/1920
+        // https://github.com/paulmillr/chokidar/pull/536
+        setTimeout(() => {
+            if (webpackDev) {
+                webpackDev.close(cb);
+                return;
+            }
+            if (cb) {
+                cb();
+            }
+        }, 100);
+    }];
+}
+
+function createLegacyServer(config, mountWebpackDevMiddleware = true) {
+    const compiler = webpackLegacy(config);
+    const app = express();
+    let webpackDev;
+    if (mountWebpackDevMiddleware) {
+        webpackDev = webpackDevMiddlewareLegacy(compiler, { logLevel: 'silent' });
         app.use(webpackDev);
     }
     app.use(webpackHotServerMiddleware(compiler));
@@ -50,7 +81,6 @@ function createServer(config, mountWebpackDevMiddleware = true) {
 }
 
 describe('index', () => {
-
     it('throws when the compiler isn\'t a `MultiCompiler`', () => {
         // Avoid mounting webpackDevMiddleware as we expect it to throw so would
         // lose the opportunity to close the connection.
@@ -205,4 +235,20 @@ describe('index', () => {
             });
     });
 
+    it(`handles legacy webpack`, done => {
+        const [app, close] = createLegacyServer(legacyConfig);
+        request(app)
+            .get('/')
+            .expect(200)
+            .expect('Hello Server')
+            .end((err, res) => {
+                close(() => {
+                    if (err) {
+                        done.fail(err);
+                        return;
+                    }
+                    done();
+                });
+            });
+    });
 });

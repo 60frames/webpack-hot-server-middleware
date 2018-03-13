@@ -128,9 +128,8 @@ function webpackHotServerMiddleware(multiCompiler, options) {
     let serverRenderer;
     let error = false;
 
-    multiCompiler.plugin('done', multiStats => {
+    const doneHandler = (multiStats) => {
         error = false;
-
         
         const serverStats = findStats(multiStats, 'server')[0];
         // Server compilation errors need to be propagated to the client.
@@ -162,7 +161,15 @@ function webpackHotServerMiddleware(multiCompiler, options) {
             debug(ex);
             error = ex;
         }
-    });
+    };
+
+    if (multiCompiler.hooks) {
+        // Webpack 4
+        multiCompiler.hooks.done.tap('WebpackHotServerMiddleware', doneHandler);
+    } else {
+        // Webpack 3
+        multiCompiler.plugin('done', doneHandler);
+    }
 
     return function () {
         return options.createHandler(error, serverRenderer).apply(null, arguments);
