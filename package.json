@@ -25,10 +25,9 @@
     "require-from-string": "^2.0.1",
     "source-map-support": "^0.5.3",
     "yarn": "^1.5.1"
-
   },
   "peerDependencies": {
-      "webpack": "^3.0.0 || ^4.0.0"
+    "webpack": "*"
   },
   "devDependencies": {
     "babel-jest": "^22.4.1",
@@ -39,8 +38,9 @@
     "express": "^4.16.2",
     "jest": "^22.4.2",
     "supertest": "^3.0.0",
-    "webpack": "^4.0.0",
-    "webpack-dev-middleware": "^3.0.0",
+    "webpack": "^4.1.1",
+    "webpack-dev-middleware": "^3.0.1",
+    "webpack-dev-middleware-legacy": "npm:webpack-dev-middleware@^2.0.2",
     "webpack-legacy": "npm:webpack@^3.0.0"
   }
 }
