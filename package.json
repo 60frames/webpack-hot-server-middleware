@@ -23,8 +23,7 @@
   "dependencies": {
     "debug": "^3.1.0",
     "require-from-string": "^2.0.1",
-    "source-map-support": "^0.5.3",
-    "yarn": "^1.5.1"
+    "source-map-support": "^0.5.3"
   },
   "peerDependencies": {
     "webpack": "*"
