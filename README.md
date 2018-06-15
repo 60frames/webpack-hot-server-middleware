@@ -67,7 +67,7 @@ It turns out hot module replacement is much easier on the server than on the cli
 
 ## Usage
 
-Webpack Hot Server Middleware expects your Webpack config to export an [array of configurations](http://webpack.github.io/docs/configuration.html#multiple-configurations), one for your client bundle and one for your server bundle, e.g.
+Webpack Hot Server Middleware expects your Webpack config to export an [array of configurations](http://webpack.github.io/docs/configuration.html#multiple-configurations), one for your client bundle and one for your server bundle:
 
 ```js
 // webpack.config.js
