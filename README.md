@@ -116,7 +116,7 @@ Now whenever Webpack rebuilds, the new bundle will be used both client and *serv
 
 **webpackHotServerMiddleware** `(compiler: MultiCompiler, options?: Options) => void`
 
-- **options.chunkName** `string` The name of the server entry point, defaults to `main`.
+- **options.chunkName** `string` The name of the server entry point, defaults to `'main'`.
 - **options.serverRendererOptions** `object` Mixed in with `clientStats` & `serverStats` and passed to the `serverRenderer`.
 
 ## Example
