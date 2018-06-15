@@ -179,7 +179,7 @@ if (process.env.NODE_ENV !== 'production') {
     app.use(serverRenderer({ clientStats, serverStats }));
 }
 
-app.listen(8080);
+app.listen(6060);
 ```
 
 ## License
