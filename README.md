@@ -168,7 +168,7 @@ if (process.env.NODE_ENV !== 'production') {
     const hotServerMiddleware = require('webpack-hot-server-middleware');
     app.use(hotServerMiddleware(compiler));
 } else {
-    const buildDir =  path.join(__dirname, '../build');
+    const buildDir = path.join(__dirname, '../build');
     
     app.use(express.static(path.join(buildDir, 'client')));
     
