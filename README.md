@@ -7,7 +7,7 @@ Webpack Hot Server Middleware is designed to be used in conjunction with [`webpa
 
 When creating universal Web apps it's common to build two bundles with Webpack, one client bundle [targeting](https://webpack.github.io/docs/configuration.html#target) 'web' and another server bundle targeting 'node'.
 
-The entry point to the client bundle renders to the DOM:
+The entry point to the client bundle renders to the DOM, e.g.
 
 ```js
 // client.js
@@ -18,7 +18,7 @@ import App from './components/App';
 ReactDOM.render(<App />, document.getElementById('root'));
 ```
 
-And the entry point to the server bundle renders to string:
+And the entry point to the server bundle renders to string, e.g.
 
 ```js
 // server.js
@@ -46,7 +46,7 @@ export default function serverRenderer() {
 }
 ```
 
-**NOTE:** The server bundle is itself middleware allowing you to mount it anywhere in an existing node server:
+**NOTE:** The server bundle is itself middleware allowing you to mount it anywhere in an existing node server, e.g.
 
 ```js
 const express = require('express');
@@ -67,7 +67,7 @@ It turns out hot module replacement is much easier on the server than on the cli
 
 ## Usage
 
-Webpack Hot Server Middleware expects your Webpack config to export an [array of configurations](http://webpack.github.io/docs/configuration.html#multiple-configurations), one for your client bundle and one for your server bundle:
+Webpack Hot Server Middleware expects your Webpack config to export an [array of configurations](http://webpack.github.io/docs/configuration.html#multiple-configurations), one for your client bundle and one for your server bundle, e.g.
 
 ```js
 // webpack.config.js
@@ -92,7 +92,7 @@ module.exports = [
 
 **NOTE:** It's important that server config `output.libraryTarget` is `commonjs2`.
 
-It then needs to be mounted immediately after `webpack-dev-middleware`:
+It then needs to be mounted immediately after `webpack-dev-middleware`, e.g.
 
 ```js
 const express = require('express');
