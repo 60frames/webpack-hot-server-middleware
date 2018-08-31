@@ -123,6 +123,9 @@ The name of the server entry point, defaults to 'main'.
 **serverRendererOptions** `object`
 Mixed in with `clientStats` & `serverStats` and passed to the `serverRenderer`.
 
+**webpackStatsHandler** `function`
+This gives you control over what options are passed to Webpack's [`toJson()`](https://webpack.js.org/api/node/#stats-tojson-options-) function. The default is `function(stats) { return stats.toJson() }`
+
 ### Example
 
 A simple example can be found in the [example](example) directory and a more real world example can be seen in the [60fram.es boilerplate](https://github.com/60frames/react-boilerplate).
