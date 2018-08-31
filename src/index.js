@@ -21,10 +21,15 @@ const createKoaHandler = (error, serverRenderer) => (ctx, next) => {
     return serverRenderer(ctx, next);
 };
 
+const statsHandler = (obj) => {
+    return obj.toJson();
+};
+
 const DEFAULTS = {
     chunkName: 'main',
     serverRendererOptions: {},
     createHandler: createConnectHandler,
+    webpackStatsHandler: statsHandler
 };
 
 function interopRequireDefault(obj) {
@@ -46,7 +51,7 @@ function findStats(multiStats, name) {
 }
 
 function getFilename(serverStats, outputPath, chunkName) {
-    const assetsByChunkName = serverStats.toJson().assetsByChunkName;
+    const assetsByChunkName = serverStats.toJson({ all: false, assets: true }).assetsByChunkName;
     let filename = assetsByChunkName[chunkName] || '';
     // If source maps are generated `assetsByChunkName.main`
     // will be an array of filenames.
@@ -142,8 +147,8 @@ function webpackHotServerMiddleware(multiCompiler, options) {
 
         if (clientCompilers.length) {
             const clientStats = findStats(multiStats, 'client');
-            clientStatsJson = clientStats.map(obj => obj.toJson());
-            
+            clientStatsJson = clientStats.map(options.webpackStatsHandler);
+
             if (clientStatsJson.length === 1) {
                 clientStatsJson = clientStatsJson[0];
             }
@@ -153,7 +158,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
         const buffer = outputFs.readFileSync(filename);
         const serverRendererOptions = Object.assign({
             clientStats: clientStatsJson,
-            serverStats: serverStats.toJson()
+            serverStats: options.webpackStatsHandler(serverStats)
         }, options.serverRendererOptions);
         try {
             serverRenderer = getServerRenderer(filename, buffer, serverRendererOptions);
