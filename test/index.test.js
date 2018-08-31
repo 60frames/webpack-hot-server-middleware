@@ -20,7 +20,7 @@ const badExportConfig = require('./fixtures/badexport/webpack.config.js');
 const multipleClientsConfig = require('./fixtures/multipleclients/webpack.config.js');
 const legacyConfig = require('./fixtures/legacy/webpack.config.js');
 
-function createServer(config, mountWebpackDevMiddleware = true) {
+function createServer(config, { mountWebpackDevMiddleware = true, middlewareOptions = {} } = {}) {
     const compiler = webpack(config);
     const app = express();
     let webpackDev;
@@ -28,7 +28,7 @@ function createServer(config, mountWebpackDevMiddleware = true) {
         webpackDev = webpackDevMiddleware(compiler, { logLevel: 'silent' });
         app.use(webpackDev);
     }
-    app.use(webpackHotServerMiddleware(compiler));
+    app.use(webpackHotServerMiddleware(compiler, middlewareOptions));
     app.use((err, req, res, next) => {
         res.status(500).send(err.toString());
     });
@@ -50,7 +50,7 @@ function createServer(config, mountWebpackDevMiddleware = true) {
     }];
 }
 
-function createLegacyServer(config, mountWebpackDevMiddleware = true) {
+function createLegacyServer(config, { mountWebpackDevMiddleware = true } = {}) {
     const compiler = webpackLegacy(config);
     const app = express();
     let webpackDev;
@@ -84,13 +84,13 @@ describe('index', () => {
     it('throws when the compiler isn\'t a `MultiCompiler`', () => {
         // Avoid mounting webpackDevMiddleware as we expect it to throw so would
         // lose the opportunity to close the connection.
-        expect(createServer.bind(null, noMultiCompilerConfig, false)).toThrow(
+        expect(createServer.bind(null, noMultiCompilerConfig, { mountWebpackDevMiddleware: false })).toThrow(
             new Error(`Expected webpack compiler to contain both a 'client' and/or 'server' config`)
         );
     });
 
     it('throws when server compiler cannot be found', () => {
-        expect(createServer.bind(null, incorrectServerCompilerNameConfig, false)).toThrow(
+        expect(createServer.bind(null, incorrectServerCompilerNameConfig, { mountWebpackDevMiddleware: false })).toThrow(
             new Error(`Expected a webpack compiler named 'server'`)
         );
     });
@@ -241,6 +241,38 @@ describe('index', () => {
             .get('/')
             .expect(200)
             .expect('Hello Server')
+            .end((err, res) => {
+                close(() => {
+                    if (err) {
+                        done.fail(err);
+                        return;
+                    }
+                    done();
+                });
+            });
+    });
+
+    it('handles allows for custom webpack stats', done => {
+        const middlewareOptions = {
+            webpackStatsHandler: function(stats) {
+                return stats.toJson({
+                    all: false
+                });
+            }
+        };
+        const [app, close] = createServer(multipleClientsConfig, { middlewareOptions: middlewareOptions });
+        request(app)
+            .get('/')
+            .expect(200)
+            .expect(res => {
+                const allStatsAreEmpty = res.body.clientStats.concat(res.body.serverStats).every((json) => {
+                    return Object.keys(json).length === 2 && !json.errors.length && !json.warnings.length;
+                });
+
+                if (!allStatsAreEmpty) {
+                    throw new Error('Expected stats json to be empty');
+                }
+            })
             .end((err, res) => {
                 close(() => {
                     if (err) {
