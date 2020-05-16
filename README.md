@@ -46,7 +46,7 @@ export default function serverRenderer() {
 }
 ```
 
-> NOTE: The server bundle is itself middleware allowing you to mount it anywhere in an existing node server, e.g.
+**NOTE:** The server bundle is itself middleware allowing you to mount it anywhere in an existing node server, e.g.
 
 ```js
 const express = require('express');
@@ -65,7 +65,7 @@ Webpack Hot Server Middleware solves this problem, ensuring the server bundle us
 
 It turns out hot module replacement is much easier on the server than on the client as you don't have any state to preserve because middleware is almost always necessarily stateless, so the entire bundle can be replaced at the top level whenever a change occurs.
 
-### Usage
+## Usage
 
 Webpack Hot Server Middleware expects your Webpack config to export an [array of configurations](http://webpack.github.io/docs/configuration.html#multiple-configurations), one for your client bundle and one for your server bundle, e.g.
 
@@ -76,18 +76,21 @@ module.exports = [
     {
         name: 'client',
         target: 'web',
-        entry: './client.js'
-        ...
+        entry: './client.js',
+        // ...
     }, {
         name: 'server',
         target: 'node',
-        entry: './server.js'
-        ...
+        entry: './server.js',
+        output: { libraryTarget: 'commonjs2' },
+        // ...
     }
 ];
 ```
 
-> NOTE: It's important both the 'client' and 'server' configs are given a name prefixed with 'client' and 'server' respectively.
+**NOTE:** It's important both configs client and server are given a `name` prefixed with 'client' and 'server' respectively.
+
+**NOTE:** It's important that server config `output.libraryTarget` is `commonjs2`.
 
 It then needs to be mounted immediately after `webpack-dev-middleware`, e.g.
 
@@ -101,9 +104,7 @@ const app = express();
 
 const compiler = webpack(config);
 
-app.use(webpackDevMiddleware(compiler, {
-  serverSideRender: true
-}));
+app.use(webpackDevMiddleware(compiler, { serverSideRender: true }));
 app.use(webpackHotServerMiddleware(compiler));
 
 app.listen(6060);
@@ -111,19 +112,14 @@ app.listen(6060);
 
 Now whenever Webpack rebuilds, the new bundle will be used both client and *server* side.
 
-### API
+## API
 
 **webpackHotServerMiddleware** `(compiler: MultiCompiler, options?: Options) => void`
 
-#### Options
+- **options.chunkName** `string` The name of the server entry point, defaults to `'main'`.
+- **options.serverRendererOptions** `object` Mixed in with `clientStats` & `serverStats` and passed to the `serverRenderer`.
 
-**chunkName** `string`
-The name of the server entry point, defaults to 'main'.
-
-**serverRendererOptions** `object`
-Mixed in with `clientStats` & `serverStats` and passed to the `serverRenderer`.
-
-### Example
+## Example
 
 A simple example can be found in the [example](example) directory and a more real world example can be seen in the [60fram.es boilerplate](https://github.com/60frames/react-boilerplate).
 
@@ -142,9 +138,7 @@ const app = express();
 
 const compiler = webpack(config);
 
-app.use(webpackDevMiddleware(compiler, {
-  serverSideRender: true
-}));
+app.use(webpackDevMiddleware(compiler, { serverSideRender: true }));
 // NOTE: Only the client bundle needs to be passed to `webpack-hot-middleware`.
 app.use(webpackHotMiddleware(compiler.compilers.find(compiler => compiler.name === 'client')));
 app.use(webpackHotServerMiddleware(compiler));
@@ -163,24 +157,26 @@ const app = express();
 
 if (process.env.NODE_ENV !== 'production') {
     const webpack = require('webpack');
-    const webpackDevMiddleware = require('webpack-dev-middleware');
-    const webpackHotMiddleware = require('webpack-hot-middleware');
-    const webpackHotServerMiddleware = require('webpack-hot-server-middleware');
-    const config = require('./webpack.config.js');
-    const compiler = webpack(config);
-    app.use(webpackDevMiddleware(compiler, {
-      serverSideRender: true
-    }));
-    app.use(webpackHotMiddleware(compiler.compilers.find(compiler => compiler.name === 'client')));
-    app.use(webpackHotServerMiddleware(compiler));
+    const compiler = webpack(require('./webpack.config.js'));
+    
+    const devMiddleware = require('webpack-dev-middleware');
+    app.use(devMiddleware(compiler, { serverSideRender: true }));
+    
+    const hotMiddleware = require('webpack-hot-middleware');
+    app.use(hotMiddleware(compiler.compilers.find(({ name }) => name.startsWith('client'))));
+    
+    const hotServerMiddleware = require('webpack-hot-server-middleware');
+    app.use(hotServerMiddleware(compiler));
 } else {
-    const CLIENT_ASSETS_DIR = path.join(__dirname, '../build/client');
-    const CLIENT_STATS_PATH = path.join(CLIENT_ASSETS_DIR, 'stats.json');
-    const SERVER_RENDERER_PATH = path.join(__dirname, '../build/server.js');
-    const serverRenderer = require(SERVER_RENDERER_PATH);
-    const stats = require(CLIENT_STATS_PATH);
-    app.use(express.static(CLIENT_ASSETS_DIR));
-    app.use(serverRenderer(stats));
+    const buildDir = path.join(__dirname, '../build');
+    
+    app.use(express.static(path.join(buildDir, 'client')));
+    
+    const serverRenderer = require(path.join(buildDir, 'server.js'));
+    const clientStats = require(path.join(buildDir, 'clientStats.json'));
+    const serverStats = require(path.join(buildDir, 'serverStats.json'));
+    
+    app.use(serverRenderer({ clientStats, serverStats }));
 }
 
 app.listen(6060);
