@@ -1,8 +1,8 @@
 {
   "name": "webpack-hot-server-middleware",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Hot updates Webpack bundles on the server",
-  "main": "src/",
+  "main": "src/index.js",
   "typings": "index.d.ts",
   "scripts": {
     "test": "jest"
