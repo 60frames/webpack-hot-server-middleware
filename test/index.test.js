@@ -19,8 +19,9 @@ const singleServerCompilerConfig = require('./fixtures/singleservercompiler/webp
 const badExportConfig = require('./fixtures/badexport/webpack.config.js');
 const multipleClientsConfig = require('./fixtures/multipleclients/webpack.config.js');
 const legacyConfig = require('./fixtures/legacy/webpack.config.js');
+const badChunkNameConfig = require('./fixtures/badchunkname/webpack.config.js');
 
-function createServer(config, mountWebpackDevMiddleware = true) {
+function createServer(config, mountWebpackDevMiddleware = true, options) {
     const compiler = webpack(config);
     const app = express();
     let webpackDev;
@@ -28,7 +29,7 @@ function createServer(config, mountWebpackDevMiddleware = true) {
         webpackDev = webpackDevMiddleware(compiler, { logLevel: 'silent' });
         app.use(webpackDev);
     }
-    app.use(webpackHotServerMiddleware(compiler));
+    app.use(webpackHotServerMiddleware(compiler, options));
     app.use((err, req, res, next) => {
         res.status(500).send(err.toString());
     });
@@ -224,6 +225,25 @@ describe('index', () => {
             .get('/')
             .expect(500)
             .expect(`Error: The 'server' compiler must export a function in the form of \`(options) => (req, res, next) => void\``)
+            .end((err, res) => {
+                close(() => {
+                    if (err) {
+                        done.fail(err);
+                        return;
+                    }
+                    done();
+                });
+            });
+    });
+
+    it(`handles mismatch between chunkName and stats`, done => {
+        const [app, close] = createServer(badChunkNameConfig, true, {
+            chunkName: "nonexistent"
+        });
+        request(app)
+            .get('/')
+            .expect(500)
+            .expect(`Error: The chunkName specified in configuration is "nonexistent", but no chunk was compiled with that name. Compiled chunks: "main"`)
             .end((err, res) => {
                 close(() => {
                     if (err) {

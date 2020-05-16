@@ -47,7 +47,13 @@ function findStats(multiStats, name) {
 
 function getFilename(serverStats, outputPath, chunkName) {
     const assetsByChunkName = serverStats.toJson().assetsByChunkName;
-    let filename = assetsByChunkName[chunkName] || '';
+    const filename = assetsByChunkName[chunkName];
+    if (typeof filename === "undefined") {
+        const chunks = Object.keys(assetsByChunkName).map(JSON.stringify).join(", ");
+        throw new Error(
+            `The chunkName specified in configuration is "${chunkName}", but no chunk was compiled with that name. Compiled chunks: ${chunks}`
+        )
+    }
     // If source maps are generated `assetsByChunkName.main`
     // will be an array of filenames.
     return path.join(
@@ -149,8 +155,15 @@ function webpackHotServerMiddleware(multiCompiler, options) {
             }
         }
 
-        const filename = getFilename(serverStats, outputPath, options.chunkName);
-        const buffer = outputFs.readFileSync(filename);
+        let filename, buffer;
+        try {
+            filename = getFilename(serverStats, outputPath, options.chunkName);
+            buffer = outputFs.readFileSync(filename);
+        } catch (ex) {
+            debug(ex);
+            error = ex;
+            return;
+        }
         const serverRendererOptions = Object.assign({
             clientStats: clientStatsJson,
             serverStats: serverStats.toJson()
