@@ -25,7 +25,7 @@ function createServer(config, mountWebpackDevMiddleware = true) {
     const app = express();
     let webpackDev;
     if (mountWebpackDevMiddleware) {
-        webpackDev = webpackDevMiddleware(compiler, { logLevel: 'silent' });
+        webpackDev = webpackDevMiddleware(compiler, { });
         app.use(webpackDev);
     }
     app.use(webpackHotServerMiddleware(compiler));
@@ -55,7 +55,7 @@ function createLegacyServer(config, mountWebpackDevMiddleware = true) {
     const app = express();
     let webpackDev;
     if (mountWebpackDevMiddleware) {
-        webpackDev = webpackDevMiddlewareLegacy(compiler, { logLevel: 'silent' });
+        webpackDev = webpackDevMiddlewareLegacy(compiler, { });
         app.use(webpackDev);
     }
     app.use(webpackHotServerMiddleware(compiler));

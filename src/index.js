@@ -64,6 +64,14 @@ function getServerRenderer(filename, buffer, options) {
     let serverRenderer = interopRequireDefault(
         requireFromString(buffer.toString(), filename)
     );
+
+    // webpack 5 issue
+    if (typeof serverRenderer === 'object' && 'server' in serverRenderer) {
+        serverRenderer = interopRequireDefault(serverRenderer.server);
+    }
+
+    console.log(serverRenderer)
+
     if (typeof serverRenderer !== 'function') {
         throw new Error(errMessage);
     }
