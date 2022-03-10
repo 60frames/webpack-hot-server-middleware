@@ -58,11 +58,11 @@ function getFilename(serverStats, outputPath, chunkName) {
     );
 }
 
-function getServerRenderer(filename, buffer, options) {
+async function getServerRenderer(filename, buffer, options) {
     const errMessage = `The 'server' compiler must export a function in the form of \`(options) => (req, res, next) => void\``;
 
     let serverRenderer = interopRequireDefault(
-        requireFromString(buffer.toString(), filename)
+        await requireFromString(buffer.toString(), filename)
     );
     if (typeof serverRenderer !== 'function') {
         throw new Error(errMessage);
@@ -128,7 +128,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
     let serverRenderer;
     let error = false;
 
-    const doneHandler = (multiStats) => {
+    const doneHandler = async (multiStats) => {
         error = false;
         
         const serverStats = findStats(multiStats, 'server')[0];
@@ -156,7 +156,7 @@ function webpackHotServerMiddleware(multiCompiler, options) {
             serverStats: serverStats.toJson()
         }, options.serverRendererOptions);
         try {
-            serverRenderer = getServerRenderer(filename, buffer, serverRendererOptions);
+            serverRenderer = await getServerRenderer(filename, buffer, serverRendererOptions);
         } catch (ex) {
             debug(ex);
             error = ex;
